@@ -143,6 +143,15 @@ class BaseSecretsBackend(ABC):
         """
         raise NotImplementedError()
 
+    def get_variables(self, *keys: str) -> dict[str, str | None]:
+        """
+        Return values for Airflow Variables.
+
+        :param keys: Variable Keys
+        :return: Dict of Variable Keys -> Variable Values
+        """
+        return {key: self.get_variable(key) for key in keys}
+
     def get_config(self, key: str) -> str | None:
         """
         Return value for Airflow Config Key.

@@ -71,3 +71,17 @@ class MetastoreBackend(BaseSecretsBackend):
         if var_value:
             return var_value.val
         return None
+
+    @provide_session
+    def get_variables(self, *keys: str, session: Session = NEW_SESSION) -> dict[str, str | None]:
+        """
+        Return values for Airflow Variables.
+
+        :param keys: Variable Keys
+        :return: Dict of Variable Keys -> Variable Values
+        """
+        from airflow.models.variable import Variable
+
+        var_values = session.scalars(select(Variable).where(Variable.key.in_(keys)).limit(len(keys)))
+        session.expunge_all()
+        return {key: (var_value.val if var_value else None) for key in keys}
